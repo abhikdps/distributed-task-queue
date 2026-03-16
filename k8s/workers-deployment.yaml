@@ -1,0 +1,47 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: taskqueue-workers
+  namespace: taskqueue
+spec:
+  replicas: 4
+  selector:
+    matchLabels:
+      app: taskqueue-workers
+  template:
+    metadata:
+      labels:
+        app: taskqueue-workers
+    spec:
+      containers:
+        - name: worker
+          image: taskqueue-worker:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: metrics
+              containerPort: 9091
+          envFrom:
+            - configMapRef:
+                name: taskqueue-config
+            - secretRef:
+                name: taskqueue-secret
+          resources:
+            requests:
+              memory: "128Mi"
+              cpu: "100m"
+            limits:
+              memory: "512Mi"
+              cpu: "500m"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: taskqueue-workers
+  namespace: taskqueue
+spec:
+  selector:
+    app: taskqueue-workers
+  ports:
+    - name: metrics
+      port: 9091
+      targetPort: 9091
