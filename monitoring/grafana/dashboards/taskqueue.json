@@ -1,0 +1,55 @@
+{
+  "title": "Task Queue",
+  "tags": ["taskqueue"],
+  "description": "Set time range to Last 1 hour (or more). Submit tasks or run the scale test to see data.",
+  "time": { "from": "now-1h", "to": "now" },
+  "panels": [
+    {
+      "id": 1,
+      "title": "Tasks submitted (total)",
+      "type": "stat",
+      "description": "From API. If 0 or No Data, check Prometheus Status → Targets: taskqueue-api must be UP (API on port 9095).",
+      "targets": [{ "expr": "sum(taskqueue_tasks_submitted_total) or vector(0)", "refId": "A" }],
+      "gridPos": { "h": 4, "w": 6, "x": 0, "y": 0 }
+    },
+    {
+      "id": 2,
+      "title": "Submit rate (1h)",
+      "type": "stat",
+      "description": "From API. If No Data, ensure taskqueue-api target is UP in Prometheus.",
+      "targets": [{ "expr": "sum(rate(taskqueue_tasks_submitted_total[1h])) or vector(0)", "refId": "A" }],
+      "gridPos": { "h": 4, "w": 6, "x": 6, "y": 0 }
+    },
+    {
+      "id": 3,
+      "title": "Queue depth",
+      "type": "stat",
+      "targets": [{ "expr": "sum(taskqueue_queue_depth)", "refId": "A" }],
+      "gridPos": { "h": 4, "w": 6, "x": 12, "y": 0 }
+    },
+    {
+      "id": 4,
+      "title": "API P99 latency (s)",
+      "type": "stat",
+      "description": "From API. If No Data, ensure taskqueue-api target is UP in Prometheus (API on 9095).",
+      "targets": [{ "expr": "histogram_quantile(0.99, sum(rate(taskqueue_api_request_duration_seconds_bucket[1h])) by (le, method)) or vector(0)", "refId": "A" }],
+      "gridPos": { "h": 4, "w": 6, "x": 18, "y": 0 }
+    },
+    {
+      "id": 5,
+      "title": "Task latency P99 (s)",
+      "type": "graph",
+      "targets": [{ "expr": "histogram_quantile(0.99, sum(rate(taskqueue_task_latency_seconds_bucket[15m])) by (le, queue))", "legendFormat": "P99 {{queue}}", "refId": "A" }],
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 4 }
+    },
+    {
+      "id": 6,
+      "title": "Tasks completed (total)",
+      "type": "stat",
+      "targets": [{ "expr": "sum(taskqueue_worker_tasks_completed_total)", "refId": "A" }],
+      "gridPos": { "h": 4, "w": 6, "x": 12, "y": 4 }
+    }
+  ],
+  "schemaVersion": 38,
+  "version": 2
+}

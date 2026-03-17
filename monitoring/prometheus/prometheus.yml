@@ -1,0 +1,31 @@
+# Scrapes API (9095) and workers (9096) on the host. API and workers must use these
+# ports when compose is running (Prometheus uses 9090). Set in .env: PROMETHEUS_PORT=9095,
+# and in workers/.env: PROMETHEUS_PORT=9096. See docs/MONITORING.md and docs/TROUBLESHOOTING.md.
+#
+# In Status → Targets you should see: prometheus, taskqueue-api, taskqueue-workers.
+# If taskqueue-api/workers are missing or DOWN (e.g. on Linux Podman), replace
+# host.docker.internal below with your host IP (e.g. 192.168.1.100), then restart Prometheus.
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+
+scrape_configs:
+  - job_name: prometheus
+    static_configs:
+      - targets: ["localhost:9090"]
+
+  - job_name: taskqueue-api
+    static_configs:
+      - targets: ["host.docker.internal:9095"]
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: instance
+        replacement: taskqueue-api
+
+  - job_name: taskqueue-workers
+    static_configs:
+      - targets: ["host.docker.internal:9096"]
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: instance
+        replacement: taskqueue-worker
