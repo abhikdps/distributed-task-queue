@@ -1,0 +1,42 @@
+# Install: pip install pre-commit && pre-commit install
+# Run manually: pre-commit run --all-files
+# Update hooks: pre-commit autoupdate
+default_language_version:
+  python: python3
+
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v5.0.0
+    hooks:
+      - id: trailing-whitespace
+      - id: end-of-file-fixer
+      - id: check-yaml
+        exclude: ^k8s/  # k8s files use multi-document YAML (---)
+      - id: check-json
+      - id: check-added-large-files
+        args: ["--maxkb=1000"]
+      - id: check-merge-conflict
+      - id: debug-statements
+
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.8.4
+    hooks:
+      - id: ruff
+        args: [--fix]
+      - id: ruff-format
+
+  # Dashboard: lint (and optionally test) when TS/JS/JSON under dashboard/ change
+  - repo: local
+    hooks:
+      - id: dashboard-lint
+        name: dashboard lint
+        entry: bash -c "cd dashboard && npm run lint"
+        language: system
+        files: ^dashboard/.*\.(tsx?|jsx?|json)$
+        pass_filenames: false
+      - id: dashboard-test
+        name: dashboard test
+        entry: bash -c "cd dashboard && npm run test"
+        language: system
+        files: ^dashboard/.*\.(tsx?|jsx?|json)$
+        pass_filenames: false

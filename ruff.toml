@@ -1,0 +1,7 @@
+exclude = [
+    "backend/src/taskqueue/proto/gen",
+    ".git",
+    "node_modules",
+]
+
+line-length = 120
