@@ -33,6 +33,7 @@ def _setup_otlp_log_export(service_name: str) -> None:
     except Exception:  # noqa: S110
         pass  # OTLP log export optional
 
+
 def setup_logging(service_name: str = "taskqueue") -> None:
     logging.basicConfig(format="%(message)s", stream=sys.stdout, level=logging.INFO)
     _setup_otlp_log_export(service_name)
